@@ -1,0 +1,58 @@
+1. Retrieve the names of employees in department 5 who work more than 10 hours per week on the 'ProductX' project.
+
+SELECT e.FNAME 
+FROM EMPLOYEE AS e , WORKS_ON AS w , PROJECT p
+WHERE e.DNO=5 AND 
+      e.SSN = w.ESSN AND
+      p.PNUMBER = w.PNO AND 
+      p.PNAME='ProductX'AND
+      w.HOURS>10
+
+2. For each project, list the project name and the total hours per week (by all employees) spent on that project.
+
+SELECT PNAME,SUM(HOURS)
+FROM PROJECT,WORKS_ON
+WHERE PROJECT.PNUMBER = WORKS_ON.PNO
+GROUP BY PNAME
+
+3. Retrieve the names of employees who work on every project. 
+	
+	SELECT LNAME, FNAME 
+	FROM EMPLOYEE 
+	WHERE NOT EXISTS ( SELECT PNUMBER 
+			   FROM PROJECT 
+		       	   WHERE NOT EXISTS ( SELECT *   
+			   			FROM WORKS_ON 
+						WHERE PNUMBER=PNO   
+						AND ESSN=SSN ) )
+4. Retrieve the names of employees who do not work on any project. 
+	SELECT FNAME 
+	FROM   EMPLOYEE 
+	WHERE SSN NOT IN( SELECT ESSN 
+			  FROM WORKS_ON) 
+
+5. Find the names and addresses of employees who work on at least one project located in Houston but whose department has no location in Houston. 
+	SELECT FNAME,ADDRESS
+	FROM EMPLOYEE,PROJECT
+	WHERE PROJECT.PLOCATION = 'Houston' AND EMPLOYEE.DNO != PROJECT.DNUM
+
+6. List the last names of department managers who have no dependents. 
+	SELECT FNAME 
+	FROM EMPLOYEE, DEPARTMENT
+	WHERE EMPLOYEE.SSN = DEPARMENT.MGRSSN AND EMPLOYEE.SSN NOT IN(SELECT ESSN
+   									FROM DEPENDENT)
+
+7. Find details of those employees whose salary is > the average salary for all employees. Output salary in descending order. 
+
+	SELECT * 
+	FROM EMPLOYEE
+	WHERE SALARY > AVG(SALARY) 
+	ORDER BY SALARY DESC
+
+8. Find details of those employees whose salary is > the average salary for all employees in his/her department. Output salary in ascending order. 
+	SELECT * 
+	FROM EMPLOYEE AS E
+	WHERE E.SALARY > (SELECT AVG(SALARY) 
+			   FROM EMPOYEE AS E1
+			   WHERE E.DNO = E1.DNO)
+	ORDERBY SALARY
